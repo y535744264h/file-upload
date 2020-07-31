@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Uppy</title>
+    <link href="https://transloadit.edgly.net/releases/uppy/v1.19.0/uppy.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="drag-drop-area"></div>
+
+
+<script src="https://transloadit.edgly.net/releases/uppy/v1.19.0/uppy.min.js"></script>
+<script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+<script>
+    var opentions={
+        headers: {},
+        resume: true,
+        removeFingerprintOnSuccess:true,
+        chunkSize: 10240,
+        endpoint: 'http://localhost:8080/api/upload'
+    };
+    var uppy = Uppy.Core()
+        .use(Uppy.Dashboard, {
+            inline: true,
+            target: '#drag-drop-area'
+        })
+        .use(Uppy.Tus,
+            opentions);
+
+    uppy.on('upload',function(data){
+
+        // let file = uppy.getFile(data.fileIDs[0]);
+        // console.log("---------------------");
+        // console.log(data);
+        // console.log(file.data);
+        // var reader = new FileReader();
+        // reader.readAsDataURL(file.data);
+        // reader.onload = function(){
+        //     console.log(reader.result); //获取到base64格式图片
+        // };
+        // console.log(data);
+        // console.log("---------------------");
+    });
+    uppy.on('file-added',function(data){
+        console.log(data);
+    });
+
+    uppy.on('upload-progress',function(file, response){
+        console.log("-----");
+        var tus=uppy.getPlugin("Tus");
+        tus.opts.headers={"Upload-Checksum":"wadwad"};
+        console.log(tus.opts.headers);
+        console.log("-----");
+    })
+</script>
+</body>
+</html>

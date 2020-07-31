@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dropzone-Demo</title>
+</head>
+<link type="text/css" href="../static/plugins/dropzone/css/basic.css" rel="stylesheet">
+<link type="text/css" href="../static/plugins/dropzone/css/dropzone.css" rel="stylesheet">
+<!--<link type="text/css" href="../static/plugins/dropzone/css/dropzone.min.css">-->
+<body>
+
+
+<div class="dropzone" id="dropzone"></div>
+
+
+<script src="../static/plugins/jquery/jquery-3.1.1.min.js"></script>
+<!--<script src="../static/plugins/dropzone/js/dropzone-amd-module.min.js"></script>-->
+<script src="../static/plugins/dropzone/js/dropzone.js"></script>
+<script src="../static/plugins/md5/spark-md5.min.js"></script>
+<script>
+    initDropzone("dropzone");
+
+
+    function initDropzone(dropzone_id){
+        Dropzone.autoDiscover = false;// 抑制Uncaught Error: Dropzone already attached.错误
+        // 文件上传
+        var dropzone = new Dropzone('#' + dropzone_id,{
+            //previewTemplate: document.querySelector('#preview-template').innerHTML,
+            url: "http://localhost:8080/dropzone/fileUpload",
+            paramName: "file",
+            addRemoveLinks: true,
+            dictRemoveFile: '<div class="glyphicon glyphicon-trash" aria-hidden="true" style="color:#00a881;"></div>',
+            dictCancelUpload: "<div class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\" style=\"color:#00a881;\"></div>",
+           // dictMaxFilesExceeded: '最大' + allowedMaxFiles[aspSelected] + '枚の画像をアップロードできます。',
+            autoProcessQueue:true,
+            uploadMultiple:false, //开启分段上传的话，这个配置项要设为false
+            clickable:true,
+            maxFiles: 9, //最多可以传多少个文件
+            maxFilesize: 4096, // MB
+            parallelUploads: 1, // 同时上传多少张
+            chunking: true, // 开启分段上传
+            chunkSize: 2048,//每次分段的size，单位byte,1024*1024*1000=104857600,
+            timeout: 300000,
+            //acceptedFiles: "image/*,.mp4,.MOV,.wmv",
+            params: function (files, xhr, chunk) {
+                // 此处拼装分段上传时参数，会伴随每个分段请求post过去
+                if (chunk) {
+                    var md5Data="";
+                    var chunkData={
+                        dzThunk:"true",
+                        dzUuid: chunk.file.upload.uuid, // 当前上传文件的uuid
+                        dzChunkIndex: chunk.index,// 第几个片段
+                        dzTotalFileSize: chunk.file.size,// 文件总size
+                        dzCurrentChunkSize: chunk.dataBlock.data.size, // 当前片段的size
+                        dzTotalChunkCount: chunk.file.upload.totalChunkCount, // 总共分几段上传
+                        dzChunkByteOffset: chunk.index * this.options.chunkSize, //
+                        dzChunkSize: this.options.chunkSize,
+                        dzFilename: chunk.file.name,
+                        dzChunkEnCode: md5Data
+                    };
+                    var spark = new SparkMD5();
+                    var fileReader = new FileReader();
+                    fileReader.readAsBinaryString(chunk.dataBlock.data);
+                    fileReader.onload = function(e) {
+                        spark.appendBinary(e.target.result);
+                        md5Data = spark.end();
+                        console.log(1);
+                        return chunkData;
+                    };
+                    console.log(2);
+                    return chunkData;
+                }else{
+                    return {dzThunk:"false"}
+                }
+            },
+            init: function() {
+                this.on("addedfile", function(file) {
+                    // 添加文件的时候想进行的操作
+
+                });
+                this.on("removedfile", function(removedfile) {
+                    // 删除文件时的操作
+                });
+                this.on("success", function(data) {
+                    // 一个文件上传成功后的操作
+                });
+                this.on("error", function(file, message) {
+                    // alert(message);
+                    // this.removeFile(file);
+                });
+                this.on("complete", function(file) {
+                    // 文件上传完成后的操作
+                });
+                this.on("processing", function(file) {
+
+                });
+                this.on("uploadprogress", function(progress,p2) {
+
+                });
+                this.on("totaluploadprogress", function(p1, p2, p3) {
+
+                });
+                this.on("sending", function(file) {
+
+                });
+                this.on("queuecomplete", function(progress) {
+
+                });
+            }
+        });
+    }
+
+    $(function () {
+
+
+    })
+</script>
+</body>
+</html>

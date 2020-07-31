@@ -1,0 +1,14 @@
+spring:
+  servlet:
+    multipart:
+      max-request-size: 20480
+      max-file-size: 20480
+
+app:
+  tus-upload-directory: /Users/yanhao/Documents/test/tus/tus
+  app-upload-directory: /Users/yanhao/Documents/test/tus/app
+
+tus:
+  server:
+    data:
+      directory: /Users/yanhao/Documents/test/tus/data
